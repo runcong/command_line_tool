@@ -6,6 +6,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 )
 
@@ -40,9 +41,15 @@ func (s *Scheduler) AddJob(name string, duration int64, dependencies []string, e
 }
 
 func (s *Scheduler) Run() {
+	var wg sync.WaitGroup
 	for _, job := range s.Tasks {
-		job.Execute()
+		wg.Add(1)
+		go func(job *Task) {
+			defer wg.Done()
+			job.Execute()
+		}(job)
 	}
+	wg.Wait()
 }
 
 func calculateNextRun(task *Task) time.Time {
