@@ -1,0 +1,5 @@
+task1,2,dep1/dep2/dep3
+task2,3,dep4/dep5
+task3,1,dep7/dep8,kk
+task4,lo,dep7/dep8
+task5,5,dep7/dep8
