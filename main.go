@@ -16,6 +16,11 @@ var dryRun = flag.Bool(
 	"dryrun", false,
 	"Validate the input task list file and calculate the expected total runtime without executing the tasks")
 
+// Define command-line flag for to run the tasks and determine the difference in the actual runtime versue the expected runtime
+var diffTime = flag.Bool(
+	"difftime", false,
+	"Run the tasks and determine the difference in the actual runtime versue the expected runtime")
+
 // Define command-line flag for file path
 var taskListFilePath = flag.String(
 	"taskfile", "",
@@ -112,6 +117,10 @@ func calculateExpectedTotalDuration(filePath string) int64 {
 	return overalDuration
 }
 
+// func calculateRuntimeDiffeeence(startTime time.Time, endTime time.Time) int64 {
+// 	return int64(endTime.Sub(startTime).Seconds())
+// }
+
 func main() {
 	// Parse the flags
 	flag.Parse()
@@ -163,5 +172,14 @@ func main() {
 		fmt.Println("Error reading task list file:", err)
 	}
 
+	startTime := time.Now()
+	expectedRuntime := calculateExpectedTotalDuration(filePath)
 	scheduler.Run()
+	endTime := time.Now()
+
+	if *diffTime {
+		actualRuntime := endTime.Sub(startTime).Seconds()
+		fmt.Println("The difference in the actual runtime versus the expected runtime is", actualRuntime-float64(expectedRuntime), "seconds.")
+		// convert expectedRuntime to float64 to get the difference in a fraction of seconds
+	}
 }
