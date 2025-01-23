@@ -14,7 +14,12 @@ import (
 // Define command-line flag for dryrun mode
 var dryRun = flag.Bool(
 	"dryrun", false,
-	"Validate the input task list file and calculate the expected total runtime")
+	"Validate the input task list file and calculate the expected total runtime without executing the tasks")
+
+// Define command-line flag for file path
+var taskListFilePath = flag.String(
+	"taskfile", "",
+	"Path to the file containing the list of tasks to be executed")
 
 type Task struct {
 	Name         string
@@ -110,17 +115,22 @@ func calculateExpectedTotalDuration(filePath string) int64 {
 func main() {
 	// Parse the flags
 	flag.Parse()
+	filePath := *taskListFilePath
+	if filePath == "" {
+		fmt.Println("Please provide the path to the task list file using the -taskfile flag.")
+		return
+	}
 
 	if *dryRun {
-		if validateInputTasksList("task_list.txt") == true {
+		if validateInputTasksList(filePath) == true {
 			fmt.Println("The input task list file is valid.")
-			fmt.Println("The expected total runtime is", calculateExpectedTotalDuration("task_list.txt"), "seconds.")
+			fmt.Println("The expected total runtime is", calculateExpectedTotalDuration(filePath), "seconds.")
 		}
 		return
 	}
 
 	scheduler := NewScheduler()
-	file, err := os.Open("task_list.txt")
+	file, err := os.Open(filePath)
 	if err != nil {
 		fmt.Println("Error opening task list file:", err)
 		return
