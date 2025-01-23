@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"flag"
 	"fmt"
 	"os"
 	"strconv"
@@ -9,6 +10,10 @@ import (
 	"sync"
 	"time"
 )
+
+var dryRun = flag.Bool(
+	"dryrun", false,
+	"Validate the input task list file only")
 
 type Task struct {
 	Name         string
@@ -44,7 +49,7 @@ func (s *Scheduler) Run() {
 	var wg sync.WaitGroup
 	for _, job := range s.Tasks {
 		wg.Add(1)
-		go func(job *Task) {
+		go func(job *Task) { // Run the job in a goroutine currently
 			defer wg.Done()
 			job.Execute()
 		}(job)
@@ -57,7 +62,43 @@ func calculateNextRun(task *Task) time.Time {
 	return time.Now().Add(time.Duration(task.Duration) * time.Second)
 }
 
+func validateInputTasksList(filePath string) bool {
+	file, err := os.Open(filePath)
+	if err != nil {
+		fmt.Println("Error opening task list file:", err)
+		return false
+	}
+	defer file.Close()
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		line := scanner.Text()
+		parts := strings.Split(line, ",")
+		if len(parts) != 3 {
+			fmt.Println("Invalid task format in task list file for line:", line)
+			return false
+		}
+		_, err := strconv.ParseInt(parts[1], 10, 64)
+		if err != nil {
+			fmt.Println("Invalid duration format in task list file for line:", line)
+			return false
+		}
+	}
+	if err := scanner.Err(); err != nil {
+		fmt.Println("Error reading task list file:", err)
+		return false
+	}
+	return true
+}
+
 func main() {
+	// Parse the flags
+	flag.Parse()
+
+	if *dryRun {
+		validateInputTasksList("task_list.txt")
+		return
+	}
+
 	scheduler := NewScheduler()
 	file, err := os.Open("task_list.txt")
 	if err != nil {
