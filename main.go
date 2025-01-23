@@ -169,9 +169,10 @@ func main() {
 	}
 
 	startTime := time.Now()
-	expectedRuntime := calculateExpectedTotalDuration(filePath)
 	scheduler.Run()
 	endTime := time.Now()
+
+	expectedRuntime := calculateExpectedTotalDuration(filePath)
 
 	if *diffTime {
 		actualRuntime := endTime.Sub(startTime).Seconds()
