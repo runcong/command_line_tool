@@ -1,7 +1,7 @@
 task1,2,depA/depB/depC
 task2,3,depA/depB
-task3,1,depD/depF
-task4,5,depK/depM
+task3,lo,depD/depF
+task4,5,depK/depM,KK
 task5,5,depA/depB
 task6,2,depE/depF/depG
 task7,3,depA/depB
