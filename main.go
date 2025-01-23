@@ -11,9 +11,10 @@ import (
 	"time"
 )
 
+// Define command-line flag for dryrun mode
 var dryRun = flag.Bool(
 	"dryrun", false,
-	"Validate the input task list file only")
+	"Validate the input task list file and calculate the expected total runtime")
 
 type Task struct {
 	Name         string
@@ -90,12 +91,31 @@ func validateInputTasksList(filePath string) bool {
 	return true
 }
 
+func calculateExpectedTotalDuration(filePath string) int64 {
+	file, _ := os.Open(filePath)
+	defer file.Close()
+	scanner := bufio.NewScanner(file)
+	var overalDuration int64
+	for scanner.Scan() {
+		line := scanner.Text()
+		parts := strings.Split(line, ",")
+		duration, _ := strconv.ParseInt(parts[1], 10, 64)
+		if duration > overalDuration {
+			overalDuration = duration // since tasks are running concurrently, the overall duration is the maximum duration of all tasks
+		}
+	}
+	return overalDuration
+}
+
 func main() {
 	// Parse the flags
 	flag.Parse()
 
 	if *dryRun {
-		validateInputTasksList("task_list.txt")
+		if validateInputTasksList("task_list.txt") == true {
+			fmt.Println("The input task list file is valid.")
+			fmt.Println("The expected total runtime is", calculateExpectedTotalDuration("task_list.txt"), "seconds.")
+		}
 		return
 	}
 
