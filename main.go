@@ -52,7 +52,7 @@ func (s *Scheduler) AddJob(name string, duration int64, dependencies []string, e
 		Execute:      execute,
 	}
 	job.NextRun = time.Now().Add(time.Duration(job.Duration) * time.Second)
-	fmt.Println("The next run time in job", job.Name, "is", job.NextRun)
+	// fmt.Println("The next run time in job", job.Name, "is", job.NextRun)
 	s.Tasks = append(s.Tasks, job)
 }
 
@@ -116,10 +116,6 @@ func calculateExpectedTotalDuration(filePath string) int64 {
 	}
 	return overalDuration
 }
-
-// func calculateRuntimeDiffeeence(startTime time.Time, endTime time.Time) int64 {
-// 	return int64(endTime.Sub(startTime).Seconds())
-// }
 
 func main() {
 	// Parse the flags
